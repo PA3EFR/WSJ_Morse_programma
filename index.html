@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jamboree On The Air Morse Challenge</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="header-content">
+                <a href="https://www.pa3efr.nl" target="_blank" rel="noopener noreferrer">
+                    <img src="logo.jpg" alt="JOTA Logo" class="header-logo">
+                </a>
+                <h1>Jamboree On The Air Morse Challenge</h1>
+            </div>
+            <p>Test samen of alleen je morse kennis. Succes, namens de Plusscouts PA3EFR/J</p>
+        </header>
+
+        <nav class="tabs">
+            <button class="tab-btn active" data-tab="game">🎯 MORSE GAME</button>
+            <button class="tab-btn" data-tab="settings">⚙️ Instellingen</button>
+        </nav>
+
+        <!-- Morse Game Tab -->
+        <div id="game" class="tab-content active">
+        <div class="main-layout">
+            <!-- Left side - Game Area -->
+                <div class="game-main">
+                    <div class="card">
+                        <h2>Morse Challenge</h2>
+                        
+                        <div class="competitive-rules dropdown-rules">
+                            <h3 class="rules-header" onclick="toggleRules()">📋 Spelregels <span class="dropdown-arrow">▼</span></h3>
+                            <div class="rules-content" id="rulesContent" style="display: none;">
+                                <ul>
+                                    <li>🎯 Alleen letters A-Z (geen cijfers of leestekens)</li>
+                                    <li>⏰ Denktijd wordt <strong>korter per juist antwoord</strong></li>
+                                    <li>❌ Verkeerd antwoord of timeout = game over</li>
+                                    <li>💀 1 leven = direct game over bij fout</li>
+                                    <li>🏆 High score = aantal juiste letters!</li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <div class="game-display">
+                            <div id="gameQuestion">Klik op 'Start Game'</div>
+                            <div id="gameMorse">📡</div>
+                            
+                            <!-- Time Progress Bar -->
+                            <div class="time-progress-container" id="timeProgressContainer" style="display: none;">
+                                <div class="time-progress-bar" id="timeProgressBar"></div>
+                                <div class="time-progress-text" id="timeProgressText">5.0s</div>
+                            </div>
+                        </div>
+                        
+                        <div class="game-input">
+                            <input type="text" id="gameAnswer" class="wide-input" placeholder="Type een letter (auto-submit)..." maxlength="1" autocomplete="off">
+                            <div class="auto-submit-info">💡 Type gewoon een letter - automatisch verzonden!</div>
+                        </div>
+                        
+                        <div class="controls">
+                            <button id="startGame" class="btn btn-primary">Start Game</button>
+                        </div>
+                        
+                        <div id="gameResult" class="game-result"></div>
+                    </div>
+                </div>
+                
+                <!-- Right side - High Scores -->
+                <div class="highscores-sidebar">
+                    <div class="card">
+                        <h2>🏆 High Scores</h2>
+                        <div class="score-controls">
+                            <button id="clearScores" class="btn btn-danger btn-small">🗑️ Wis</button>
+                            <button id="exportScores" class="btn btn-secondary btn-small">💾 Export</button>
+                        </div>
+                        <div id="scoresList" class="scores-list">
+                            <!-- High scores worden hier geladen -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Settings Tab -->
+        <div id="settings" class="tab-content">
+            <div class="card">
+                <h2>⚙️ Instellingen</h2>
+                
+                <div class="setting-group">
+                    <label for="wpmSpeed">Morse Snelheid (WPM):</label>
+                    <input type="range" id="wpmSpeed" min="5" max="40" value="15">
+                    <span id="wpmDisplay">15 WPM</span>
+                </div>
+                
+                <div class="setting-group">
+                    <label for="frequency">Toon Frequentie (Hz):</label>
+                    <input type="range" id="frequency" min="300" max="1000" value="600">
+                    <span id="freqDisplay">600 Hz</span>
+                </div>
+                
+                <div class="setting-group">
+                    <label for="volume">Volume:</label>
+                    <input type="range" id="volume" min="0" max="100" value="50">
+                    <span id="volumeDisplay">50%</span>
+                </div>
+                
+                <div class="setting-group">
+                    <label>
+                        <input type="checkbox" id="visualFeedback" checked>
+                        Visuele feedback tijdens afspelen
+                    </label>
+                </div>
+                
+                <div class="setting-group">
+                    <button id="resetSettings" class="btn btn-secondary">🔄 Reset naar Standaard</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="morse-engine.js"></script>
+    <script src="audio-engine.js"></script>
+    <script src="game-engine.js"></script>
+    <script src="app.js"></script>
+    <script>
+        // Dropdown functionality for rules
+        function toggleRules() {
+            const rulesContent = document.getElementById('rulesContent');
+            const arrow = document.querySelector('.dropdown-arrow');
+            
+            if (rulesContent.style.display === 'none' || rulesContent.style.display === '') {
+                rulesContent.style.display = 'block';
+                rulesContent.classList.add('show');
+                arrow.classList.add('rotated');
+            } else {
+                rulesContent.classList.remove('show');
+                arrow.classList.remove('rotated');
+                setTimeout(() => {
+                    rulesContent.style.display = 'none';
+                }, 300);
+            }
+        }
+
+        // Close dropdown when clicking elsewhere
+        document.addEventListener('click', function(event) {
+            const rulesHeader = document.querySelector('.rules-header');
+            const rulesContent = document.getElementById('rulesContent');
+            const arrow = document.querySelector('.dropdown-arrow');
+            
+            if (!rulesHeader.contains(event.target) && rulesContent.classList.contains('show')) {
+                rulesContent.classList.remove('show');
+                arrow.classList.remove('rotated');
+                setTimeout(() => {
+                    rulesContent.style.display = 'none';
+                }, 300);
+            }
+        });
+    </script>
+    <div style="text-align: center;">
+      <b>High scores worden lokaal opgeslagen, niet op internet !</b>
+    </div>
+    
+</body>
+</html>
