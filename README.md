@@ -1,15 +1,14 @@
 # Jamboree On The Air Morse Challenge - Stand-Alone Version
 
 ## What is this?
-This is a stand-alone, protected version of the Jamboree On The Air Morse Challenge application. This version is protected against modifications and can be directly opened in any modern web browser.
+This is a stand-alone version of the Jamboree On The Air Morse Challenge application. This version is protected against modifications and can be directly opened in any modern web browser.
 
 ## Usage
 1. Extract the ZIP file
-2. Open the file `morse_challenge_protected.html` in your web browser
+2. Open the file `Start_morse_game.html` in your web browser
 3. The application works completely offline - no internet connection required
 
 ## Features
-- **Protected**: The application is protected against modifications
 - **Offline**: No internet connection required
 - **Multilingual**: Supports Dutch, German, English, French, and Spanish
 - **Morse Code Training**: Learn and train Morse code with audio and visual feedback
@@ -42,10 +41,10 @@ This application contains protection measures against:
 - File transfer
 
 ## Support
-This version is optimized for optimal use. For support, contact the original developers.
+This version is optimized for optimal use. For support, contact the original developers (PA3EFR).
 
 ## License
-Usage is permitted for educational purposes during Jamboree On The Air activities.
+Usage is permitted for educational purposes during Jamboree On The Air activities and was converted from DOS to modern HTML by Erwin, PA3EFR, Chairman of the Plusscouts PA3EFR/J.
 
 ---
 **Version**: 1.0.0 (Protected)  
