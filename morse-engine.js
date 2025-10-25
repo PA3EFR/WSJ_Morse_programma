@@ -9,7 +9,15 @@ class MorseEngine {
             'K': '-.-',    'L': '.-..',   'M': '--',     'N': '-.',     'O': '---',
             'P': '.--.',   'Q': '--.-',   'R': '.-.',    'S': '...',    'T': '-',
             'U': '..-',    'V': '...-',   'W': '.--',    'X': '-..-',   'Y': '-.--',
-            'Z': '--..'
+            'Z': '--..',
+            // Numbers
+            '0': '-----',  '1': '.----',  '2': '..---',  '3': '...--',  '4': '....-',
+            '5': '.....',  '6': '-....',  '7': '--...',  '8': '---..',  '9': '----.',
+            // Punctuation
+            '.': '.-.-.-', ',': '--..--', '?': '..--..', '\'': '.----.', '!': '-.-.--',
+            '/': '-..-.',  '(': '-.--.',  ')': '-.--.-', '&': '.-...',  ':': '---...',
+            ';': '-.-.-.', '=': '-...-',  '+': '.-.-.',  '-': '-....-',
+            '"': '.-..-.'
         };
         
         // Reverse lookup for decoding
@@ -21,6 +29,10 @@ class MorseEngine {
         // Training sets (DOS style - letters only)
         this.trainingSets = {
             letters: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split(''),
+            numbers: '0123456789'.split(''),
+            punctuation: '.,?\'!/&:+-="'.split(''),
+            letters_numbers: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'.split(''),
+            letters_numbers_punct: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.,?\'!/&:+-="'.split(''),
             common: 'ETAOINSHRDLU'.split(''), // Most common letters first (for easier start)
             difficult: 'QXZJKVWY'.split(''), // More complex morse patterns
             beginner: 'EISHVUF'.split(''), // Simple patterns to start with
@@ -90,6 +102,24 @@ class MorseEngine {
     getRandomCharacter(set = 'letters') {
         const characters = this.trainingSets[set] || this.trainingSets.letters;
         return characters[Math.floor(Math.random() * characters.length)];
+    }
+
+    /**
+     * Get available characters for a specific game mode
+     * @param {string} mode - Game mode: 'letters', 'letters_numbers', 'letters_numbers_punct'
+     * @returns {string[]} Array of available characters
+     */
+    getCharactersForMode(mode) {
+        switch(mode) {
+            case 'letters':
+                return this.trainingSets.letters;
+            case 'letters_numbers':
+                return this.trainingSets.letters_numbers;
+            case 'letters_numbers_punct':
+                return this.trainingSets.letters_numbers_punct;
+            default:
+                return this.trainingSets.letters;
+        }
     }
     
     /**

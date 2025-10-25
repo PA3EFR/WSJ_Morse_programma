@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jamboree On The Air Morse Challenge</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <!-- Language Selector -->
+        <div class="language-selector">
+            <button class="lang-btn active" data-lang="nl">NL</button>
+            <button class="lang-btn" data-lang="de">DE</button>
+            <button class="lang-btn" data-lang="en">EN</button>
+            <button class="lang-btn" data-lang="fr">FR</button>
+            <button class="lang-btn" data-lang="es">ES</button>
+        </div>
+
+        <header>
+            <div class="header-content">
+                <a href="https://www.pa3efr.nl" target="_blank" rel="noopener noreferrer">
+                    <img src="logo.jpg" alt="JOTA Logo" class="header-logo">
+                </a>
+                <h1 data-i18n="title">Jamboree On The Air Morse Challenge</h1>
+            </div>
+            <p data-i18n="subtitle">Test samen of alleen je morse kennis. Succes, namens de Plusscouts PA3EFR/J</p>
+        </header>
+
+        <nav class="tabs">
+            <button class="tab-btn active" data-tab="game" data-i18n="tab_game">🎯 MORSE GAME</button>
+            <button class="tab-btn" data-tab="reference" data-i18n="tab_reference">📚 Morse Overzicht</button>
+            <button class="tab-btn" data-tab="settings" data-i18n="tab_settings">⚙️ Instellingen</button>
+        </nav>
+
+        <!-- Morse Game Tab -->
+        <div id="game" class="tab-content active">
+        <div class="main-layout">
+            <!-- Left side - Game Area -->
+                <div class="game-main">
+                    <div class="card">
+                        <h2 data-i18n="morse_challenge">Morse Challenge</h2>
+                        
+                        <div class="competitive-rules dropdown-rules">
+                            <h3 class="rules-header" onclick="toggleRules()">
+                                <span data-i18n="rules_title">📋 Spelregels</span> 
+                                <span class="dropdown-arrow">▼</span>
+                            </h3>
+                            <div class="rules-content" id="rulesContent" style="display: none;">
+                                <ul>
+                                    <li data-i18n="rule_1">🎯 Karakters afhankelijk van gekozen instellingen</li>
+                                    <li data-i18n="rule_2">⏰ Denktijd wordt <strong>korter per juist antwoord</strong></li>
+                                    <li data-i18n="rule_3">❌ Verkeerd antwoord of timeout = game over</li>
+                                    <li data-i18n="rule_4">💀 1 leven = direct game over bij fout</li>
+                                    <li data-i18n="rule_5">🏆 High score = aantal juiste karakters!</li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <div class="game-display">
+                            <div id="gameQuestion" data-i18n="click_start">Klik op 'Start Game'</div>
+                            <div id="gameMorse">📡</div>
+                            
+                            <!-- Time Progress Bar -->
+                            <div class="time-progress-container" id="timeProgressContainer" style="display: none;">
+                                <div class="time-progress-bar" id="timeProgressBar"></div>
+                                <div class="time-progress-text" id="timeProgressText">5.0s</div>
+                            </div>
+                        </div>
+                        
+                        <div class="game-input">
+                            <input type="text" id="gameAnswer" class="wide-input" data-i18n-placeholder="type_character" placeholder="Type een karakter (auto-submit)..." maxlength="1" autocomplete="off">
+                            <div class="auto-submit-info" data-i18n="auto_submit_info">💡 Type gewoon een karakter - automatisch verzonden!</div>
+                        </div>
+                        
+                        <div class="controls">
+                            <button id="startGame" class="btn btn-primary" data-i18n="start_game">Start Game</button>
+                        </div>
+                        
+                        <div id="gameResult" class="game-result"></div>
+                    </div>
+                </div>
+                
+                <!-- Right side - High Scores -->
+                <div class="highscores-sidebar">
+                    <div class="card">
+                        <h2 data-i18n="high_scores">🏆 High Scores</h2>
+                        <div class="score-controls">
+                            <button id="clearScores" class="btn btn-danger btn-small" data-i18n="clear_scores">🗑️ Wis</button>
+                            <button id="exportScores" class="btn btn-secondary btn-small" data-i18n="export_scores">💾 Export</button>
+                        </div>
+                        
+                        <!-- High Scores Categories -->
+                        <div class="scores-categories">
+                            <div class="score-category">
+                                <h3 data-i18n="category_letters">Letters</h3>
+                                <div id="scoresLetters" class="scores-list">
+                                    <!-- Letters high scores -->
+                                </div>
+                            </div>
+                            
+                            <div class="score-category">
+                                <h3 data-i18n="category_letters_numbers">Letters & Cijfers</h3>
+                                <div id="scoresLettersNumbers" class="scores-list">
+                                    <!-- Letters & Numbers high scores -->
+                                </div>
+                            </div>
+                            
+                            <div class="score-category">
+                                <h3 data-i18n="category_letters_numbers_punct">Letters, Cijfers & Leestekens</h3>
+                                <div id="scoresLettersNumbersPunct" class="scores-list">
+                                    <!-- All characters high scores -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Morse Reference Tab -->
+        <div id="reference" class="tab-content">
+            <div class="card">
+                <h2 data-i18n="reference_title">📚 Morse Code Overzicht</h2>
+                <p data-i18n="reference_subtitle">Complete lijst van alle karakters en hun Morse code representatie</p>
+                
+                <div class="morse-reference-grid">
+                    <!-- Letters Section -->
+                    <div class="reference-section">
+                        <h3 data-i18n="reference_letters">🔤 Letters (A-Z)</h3>
+                        <div id="lettersReference" class="morse-char-grid">
+                            <div class="morse-char-item" data-type="letters">
+                                <div class="morse-char-display">A</div>
+                                <div class="morse-code-display">.-</div>
+                            </div>
+                            <div class="morse-char-item" data-type="letters">
+                                <div class="morse-char-display">B</div>
+                                <div class="morse-code-display">-...</div>
+                            </div>
+                            <div class="morse-char-item" data-type="letters">
+                                <div class="morse-char-display">C</div>
+                                <div class="morse-code-display">-.-.</div>
+                            </div>
+                            <div class="morse-char-item" data-type="letters">
+                                <div class="morse-char-display">D</div>
+                                <div class="morse-code-display">-..</div>
+                            </div>
+                            <div class="morse-char-item" data-type="letters">
+                                <div class="morse-char-display">E</div>
+                                <div class="morse-code-display">.</div>
+                            </div>
+                            <div class="morse-char-item" data-type="letters">
+                                <div class="morse-char-display">F</div>
+                                <div class="morse-code-display">..-.</div>
+                            </div>
+                            <div class="morse-char-item" data-type="letters">
+                                <div class="morse-char-display">G</div>
+                                <div class="morse-code-display">--.</div>
+                            </div>
+                            <div class="morse-char-item" data-type="letters">
+                                <div class="morse-char-display">H</div>
+                                <div class="morse-code-display">....</div>
+                            </div>
+                            <div class="morse-char-item" data-type="letters">
+                                <div class="morse-char-display">I</div>
+                                <div class="morse-code-display">..</div>
+                            </div>
+                            <div class="morse-char-item" data-type="letters">
+                                <div class="morse-char-display">J</div>
+                                <div class="morse-code-display">.---</div>
+                            </div>
+                            <div class="morse-char-item" data-type="letters">
+                                <div class="morse-char-display">K</div>
+                                <div class="morse-code-display">-.-</div>
+                            </div>
+                            <div class="morse-char-item" data-type="letters">
+                                <div class="morse-char-display">L</div>
+                                <div class="morse-code-display">.-..</div>
+                            </div>
+                            <div class="morse-char-item" data-type="letters">
+                                <div class="morse-char-display">M</div>
+                                <div class="morse-code-display">--</div>
+                            </div>
+                            <div class="morse-char-item" data-type="letters">
+                                <div class="morse-char-display">N</div>
+                                <div class="morse-code-display">-.</div>
+                            </div>
+                            <div class="morse-char-item" data-type="letters">
+                                <div class="morse-char-display">O</div>
+                                <div class="morse-code-display">---</div>
+                            </div>
+                            <div class="morse-char-item" data-type="letters">
+                                <div class="morse-char-display">P</div>
+                                <div class="morse-code-display">.--.</div>
+                            </div>
+                            <div class="morse-char-item" data-type="letters">
+                                <div class="morse-char-display">Q</div>
+                                <div class="morse-code-display">--.-</div>
+                            </div>
+                            <div class="morse-char-item" data-type="letters">
+                                <div class="morse-char-display">R</div>
+                                <div class="morse-code-display">.-.</div>
+                            </div>
+                            <div class="morse-char-item" data-type="letters">
+                                <div class="morse-char-display">S</div>
+                                <div class="morse-code-display">...</div>
+                            </div>
+                            <div class="morse-char-item" data-type="letters">
+                                <div class="morse-char-display">T</div>
+                                <div class="morse-code-display">-</div>
+                            </div>
+                            <div class="morse-char-item" data-type="letters">
+                                <div class="morse-char-display">U</div>
+                                <div class="morse-code-display">..-</div>
+                            </div>
+                            <div class="morse-char-item" data-type="letters">
+                                <div class="morse-char-display">V</div>
+                                <div class="morse-code-display">...-</div>
+                            </div>
+                            <div class="morse-char-item" data-type="letters">
+                                <div class="morse-char-display">W</div>
+                                <div class="morse-code-display">.--</div>
+                            </div>
+                            <div class="morse-char-item" data-type="letters">
+                                <div class="morse-char-display">X</div>
+                                <div class="morse-code-display">-..-</div>
+                            </div>
+                            <div class="morse-char-item" data-type="letters">
+                                <div class="morse-char-display">Y</div>
+                                <div class="morse-code-display">-.--</div>
+                            </div>
+                            <div class="morse-char-item" data-type="letters">
+                                <div class="morse-char-display">Z</div>
+                                <div class="morse-code-display">--..</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Numbers Section -->
+                    <div class="reference-section">
+                        <h3 data-i18n="reference_numbers">🔢 Cijfers (0-9)</h3>
+                        <div id="numbersReference" class="morse-char-grid">
+                            <div class="morse-char-item" data-type="numbers">
+                                <div class="morse-char-display">0</div>
+                                <div class="morse-code-display">-----</div>
+                            </div>
+                            <div class="morse-char-item" data-type="numbers">
+                                <div class="morse-char-display">1</div>
+                                <div class="morse-code-display">.----</div>
+                            </div>
+                            <div class="morse-char-item" data-type="numbers">
+                                <div class="morse-char-display">2</div>
+                                <div class="morse-code-display">..---</div>
+                            </div>
+                            <div class="morse-char-item" data-type="numbers">
+                                <div class="morse-char-display">3</div>
+                                <div class="morse-code-display">...--</div>
+                            </div>
+                            <div class="morse-char-item" data-type="numbers">
+                                <div class="morse-char-display">4</div>
+                                <div class="morse-code-display">....-</div>
+                            </div>
+                            <div class="morse-char-item" data-type="numbers">
+                                <div class="morse-char-display">5</div>
+                                <div class="morse-code-display">.....</div>
+                            </div>
+                            <div class="morse-char-item" data-type="numbers">
+                                <div class="morse-char-display">6</div>
+                                <div class="morse-code-display">-....</div>
+                            </div>
+                            <div class="morse-char-item" data-type="numbers">
+                                <div class="morse-char-display">7</div>
+                                <div class="morse-code-display">--...</div>
+                            </div>
+                            <div class="morse-char-item" data-type="numbers">
+                                <div class="morse-char-display">8</div>
+                                <div class="morse-code-display">---..</div>
+                            </div>
+                            <div class="morse-char-item" data-type="numbers">
+                                <div class="morse-char-display">9</div>
+                                <div class="morse-code-display">----.</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Punctuation Section -->
+                    <div class="reference-section">
+                        <h3 data-i18n="reference_punctuation">📝 Leestekens</h3>
+                        <div id="punctuationReference" class="morse-char-grid">
+                            <div class="morse-char-item" data-type="punctuation">
+                                <div class="morse-char-display">.</div>
+                                <div class="morse-code-display">.-.-.-</div>
+                            </div>
+                            <div class="morse-char-item" data-type="punctuation">
+                                <div class="morse-char-display">,</div>
+                                <div class="morse-code-display">--..--</div>
+                            </div>
+                            <div class="morse-char-item" data-type="punctuation">
+                                <div class="morse-char-display">?</div>
+                                <div class="morse-code-display">..--..</div>
+                            </div>
+                            <div class="morse-char-item" data-type="punctuation">
+                                <div class="morse-char-display">'</div>
+                                <div class="morse-code-display">.----.</div>
+                            </div>
+                            <div class="morse-char-item" data-type="punctuation">
+                                <div class="morse-char-display">!</div>
+                                <div class="morse-code-display">-.-.--</div>
+                            </div>
+                            <div class="morse-char-item" data-type="punctuation">
+                                <div class="morse-char-display">/</div>
+                                <div class="morse-code-display">-..-.</div>
+                            </div>
+                            <div class="morse-char-item" data-type="punctuation">
+                                <div class="morse-char-display">(</div>
+                                <div class="morse-code-display">-.--.</div>
+                            </div>
+                            <div class="morse-char-item" data-type="punctuation">
+                                <div class="morse-char-display">)</div>
+                                <div class="morse-code-display">-.--.-</div>
+                            </div>
+                            <div class="morse-char-item" data-type="punctuation">
+                                <div class="morse-char-display">&</div>
+                                <div class="morse-code-display">.-...</div>
+                            </div>
+                            <div class="morse-char-item" data-type="punctuation">
+                                <div class="morse-char-display">:</div>
+                                <div class="morse-code-display">---...</div>
+                            </div>
+                            <div class="morse-char-item" data-type="punctuation">
+                                <div class="morse-char-display">;</div>
+                                <div class="morse-code-display">-.-.-.</div>
+                            </div>
+                            <div class="morse-char-item" data-type="punctuation">
+                                <div class="morse-char-display">=</div>
+                                <div class="morse-code-display">-...-</div>
+                            </div>
+                            <div class="morse-char-item" data-type="punctuation">
+                                <div class="morse-char-display">+</div>
+                                <div class="morse-code-display">.-.-.</div>
+                            </div>
+                            <div class="morse-char-item" data-type="punctuation">
+                                <div class="morse-char-display">-</div>
+                                <div class="morse-code-display">-....-</div>
+                            </div>
+                            <div class="morse-char-item" data-type="punctuation">
+                                <div class="morse-char-display">"</div>
+                                <div class="morse-code-display">.-..-.</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="reference-note">
+                    <p data-i18n="reference_note">💡 Tip: Gebruik dit overzicht als naslagwerk tijdens het leren van Morse code!</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Settings Tab -->
+        <div id="settings" class="tab-content">
+            <div class="card">
+                <h2 data-i18n="settings_title">⚙️ Instellingen</h2>
+                
+                <div class="setting-group">
+                    <label for="wpmSpeed" data-i18n="morse_speed">Morse Snelheid (WPM):</label>
+                    <input type="range" id="wpmSpeed" min="5" max="40" value="15">
+                    <span id="wpmDisplay">15 WPM</span>
+                </div>
+                
+                <div class="setting-group">
+                    <label for="frequency" data-i18n="tone_frequency">Toon Frequentie (Hz):</label>
+                    <input type="range" id="frequency" min="300" max="1000" value="600">
+                    <span id="freqDisplay">600 Hz</span>
+                </div>
+                
+                <div class="setting-group">
+                    <label for="volume" data-i18n="volume">Volume:</label>
+                    <input type="range" id="volume" min="0" max="100" value="50">
+                    <span id="volumeDisplay">50%</span>
+                </div>
+                
+                <div class="setting-group">
+                    <label>
+                        <input type="checkbox" id="visualFeedback" checked>
+                        <span data-i18n="visual_feedback">Visuele feedback tijdens afspelen</span>
+                    </label>
+                </div>
+                
+                <div class="setting-group">
+                    <label data-i18n="character_set">Karakter reeks:</label>
+                    <div class="radio-group">
+                        <label class="radio-label">
+                            <input type="radio" name="characterSet" value="letters" checked>
+                            <span data-i18n="letters_only">Alleen letters (A-Z)</span>
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="characterSet" value="letters_numbers">
+                            <span data-i18n="letters_numbers">Letters en cijfers (A-Z, 0-9)</span>
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="characterSet" value="letters_numbers_punct">
+                            <span data-i18n="letters_numbers_punct">Letters, cijfers en leestekens</span>
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="setting-group">
+                    <button id="resetSettings" class="btn btn-secondary" data-i18n="reset_settings">🔄 Reset naar Standaard</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="translations.js"></script>
+    <script src="morse-engine.js"></script>
+    <script src="audio-engine.js"></script>
+    <script src="game-engine.js"></script>
+    <script src="app.js"></script>
+    <script>
+        // Dropdown functionality for rules
+        function toggleRules() {
+            const rulesContent = document.getElementById('rulesContent');
+            const arrow = document.querySelector('.dropdown-arrow');
+            
+            if (rulesContent.style.display === 'none' || rulesContent.style.display === '') {
+                rulesContent.style.display = 'block';
+                rulesContent.classList.add('show');
+                arrow.classList.add('rotated');
+            } else {
+                rulesContent.classList.remove('show');
+                arrow.classList.remove('rotated');
+                setTimeout(() => {
+                    rulesContent.style.display = 'none';
+                }, 300);
+            }
+        }
+
+        // Close dropdown when clicking elsewhere
+        document.addEventListener('click', function(event) {
+            const rulesHeader = document.querySelector('.rules-header');
+            const rulesContent = document.getElementById('rulesContent');
+            const arrow = document.querySelector('.dropdown-arrow');
+            
+            if (!rulesHeader.contains(event.target) && rulesContent.classList.contains('show')) {
+                rulesContent.classList.remove('show');
+                arrow.classList.remove('rotated');
+                setTimeout(() => {
+                    rulesContent.style.display = 'none';
+                }, 300);
+            }
+        });
+    </script>
+    <div style="text-align: center;">
+      <b data-i18n="local_storage_note">High scores worden lokaal opgeslagen, niet op internet !</b>
+    </div>
+    <!-- Default Statcounter code for WSJ Morse
+https://qrz.pa3efr.nl/WSJ_Morse_programma/index.html -->
+<script type="text/javascript">
+var sc_project=13174446; 
+var sc_invisible=1; 
+var sc_security="ac499350"; 
+</script>
+<script type="text/javascript"
+src="https://www.statcounter.com/counter/counter.js"
+async></script>
+<noscript><div class="statcounter"><a title="Web Analytics"
+href="https://statcounter.com/" target="_blank"><img
+class="statcounter"
+src="https://c.statcounter.com/13174446/0/ac499350/1/"
+alt="Web Analytics"
+referrerPolicy="no-referrer-when-downgrade"></a></div></noscript>
+<!-- End of Statcounter Code -->
+</body>
+</html>

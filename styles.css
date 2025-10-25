@@ -1,4 +1,4 @@
-/* Modern Morse Code Training App Styles */
+/* Modern Morse Code Training App Styles - Multilingual Version */
 
 :root {
     --primary-color: #2563eb;
@@ -17,6 +17,9 @@
     --border-radius: 8px;
     --font-mono: 'Roboto Mono', monospace;
     --font-sans: 'Roboto', sans-serif;
+    --orange-primary: #f97316;
+    --orange-hover: #ea580c;
+    --orange-light: #fed7aa;
 }
 
 * {
@@ -38,6 +41,67 @@ body {
     max-width: 1200px;
     margin: 0 auto;
     padding: 20px;
+}
+
+/* Language Selector */
+.language-selector {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 20px;
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: var(--border-radius);
+    backdrop-filter: blur(10px);
+}
+
+.lang-btn {
+    padding: 10px 16px;
+    border: 2px solid var(--orange-primary);
+    background: var(--orange-primary);
+    color: white;
+    cursor: pointer;
+    border-radius: var(--border-radius);
+    font-weight: 600;
+    font-size: 14px;
+    transition: all 0.3s ease;
+    min-width: 50px;
+    text-align: center;
+    box-shadow: 0 2px 4px rgba(249, 115, 22, 0.3);
+}
+
+.lang-btn:hover {
+    background: var(--orange-hover);
+    border-color: var(--orange-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(249, 115, 22, 0.4);
+}
+
+.lang-btn.active {
+    background: var(--orange-light);
+    color: var(--orange-primary);
+    border-color: var(--orange-primary);
+    box-shadow: inset 0 2px 4px rgba(249, 115, 22, 0.2);
+    transform: none;
+}
+
+.lang-btn.active:hover {
+    background: var(--orange-light);
+    transform: none;
+}
+
+/* Responsive language selector */
+@media (max-width: 768px) {
+    .language-selector {
+        gap: 4px;
+        padding: 8px;
+    }
+    
+    .lang-btn {
+        padding: 8px 12px;
+        font-size: 12px;
+        min-width: 40px;
+    }
 }
 
 header {
@@ -91,7 +155,7 @@ header h1 {
 }
 
 header p {
-    color: yellow; /* Of elke andere kleur zoals blue, red, #ff6600, etc. */;
+    color: yellow;
     font-size: 1.1rem;
 }
 
@@ -138,6 +202,121 @@ header p {
 
 .tab-content.active {
     display: block;
+}
+
+/* Morse Reference Tab */
+.morse-reference-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    margin: 20px 0;
+}
+
+.reference-section {
+    background: white;
+    border-radius: var(--border-radius);
+    padding: 20px;
+    border: 2px solid var(--border-light);
+    box-shadow: var(--shadow);
+}
+
+.reference-section h3 {
+    margin: 0 0 16px 0;
+    color: var(--primary-color);
+    font-size: 1.3em;
+    border-bottom: 2px solid var(--primary-color);
+    padding-bottom: 8px;
+}
+
+.morse-char-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 12px;
+}
+
+.morse-char-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 16px 8px;
+    background: var(--surface);
+    border: 2px solid var(--border-light);
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    text-align: center;
+}
+
+.morse-char-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(255, 152, 0, 0.2);
+    border-color: var(--primary-color);
+}
+
+.morse-char-item.playing {
+    background: linear-gradient(135deg, #fff500, #ffd700);
+    border-color: var(--orange-primary);
+    box-shadow: 0 0 20px rgba(255, 152, 0, 0.6);
+    transform: scale(1.05);
+}
+
+.morse-char-item.playing .morse-char-display {
+    color: #000;
+    font-weight: 700;
+}
+
+.morse-char-display {
+    font-family: 'Roboto Mono', monospace;
+    font-size: 2em;
+    font-weight: 700;
+    color: var(--primary-color);
+    margin-bottom: 8px;
+    line-height: 1;
+}
+
+.morse-code-display {
+    font-family: 'Roboto Mono', monospace;
+    font-size: 1.1em;
+    color: var(--text-secondary);
+    background: var(--surface-light);
+    padding: 4px 8px;
+    border-radius: 4px;
+    border: 1px solid var(--border-light);
+    margin-top: 4px;
+    word-break: break-all;
+}
+
+.reference-note {
+    margin-top: 24px;
+    padding: 16px;
+    background: var(--surface);
+    border-left: 4px solid var(--primary-color);
+    border-radius: 4px;
+}
+
+.reference-note p {
+    margin: 0;
+    color: var(--text-secondary);
+    font-style: italic;
+}
+
+/* Responsive adjustments for reference tab */
+@media (max-width: 768px) {
+    .morse-char-grid {
+        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+        gap: 8px;
+    }
+    
+    .morse-char-item {
+        padding: 12px 4px;
+    }
+    
+    .morse-char-display {
+        font-size: 1.5em;
+    }
+    
+    .morse-code-display {
+        font-size: 0.9em;
+    }
 }
 
 /* Animations */
@@ -652,6 +831,12 @@ input[type="checkbox"] {
     
     .tabs {
         flex-direction: column;
+        gap: 2px;
+    }
+    
+    .tab-btn {
+        width: 100%;
+        justify-content: center;
     }
     
     .tab-btn {
@@ -762,4 +947,94 @@ input[type="checkbox"] {
 
 @keyframes spin {
     to { transform: rotate(360deg); }
+}
+
+/* Character set radio buttons */
+.radio-group {
+    margin-top: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.radio-label {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    padding: 8px 12px;
+    border-radius: var(--border-radius);
+    border: 1px solid var(--border-color);
+    transition: all 0.2s ease;
+}
+
+.radio-label:hover {
+    background-color: var(--background);
+    border-color: var(--primary-color);
+}
+
+.radio-label input[type="radio"] {
+    margin-right: 8px;
+    cursor: pointer;
+}
+
+.radio-label input[type="radio"]:checked + span {
+    color: var(--primary-color);
+    font-weight: 500;
+}
+
+/* Score categories styling */
+.scores-categories {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.score-category {
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    padding: 16px;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.score-category h3 {
+    font-size: 14px;
+    font-weight: 600;
+    margin: 0 0 12px 0;
+    color: var(--primary-color);
+    text-align: center;
+    padding: 8px;
+    background: rgba(37, 99, 235, 0.1);
+    border-radius: calc(var(--border-radius) / 2);
+    border: 1px solid rgba(37, 99, 235, 0.2);
+}
+
+.score-category .scores-list {
+    max-height: 120px;
+    overflow-y: auto;
+}
+
+.score-category .score-item {
+    padding: 8px 10px;
+    font-size: 13px;
+}
+
+.score-category .score-item.empty {
+    text-align: center;
+    color: var(--text-secondary);
+    font-style: italic;
+}
+
+/* Responsive adjustments for scores */
+@media (max-width: 768px) {
+    .scores-categories {
+        gap: 12px;
+    }
+    
+    .score-category {
+        padding: 12px;
+    }
+    
+    .score-category .scores-list {
+        max-height: 100px;
+    }
 }

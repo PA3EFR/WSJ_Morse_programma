@@ -1,4 +1,4 @@
-// Game Engine - Competitive Morse Code Training (DOS Style) - IMPROVED VERSION
+// Game Engine - Competitive Morse Code Training (DOS Style) - IMPROVED VERSION - Multilingual
 
 class GameEngine {
     constructor(morseEngine, audioEngine) {
@@ -27,12 +27,21 @@ class GameEngine {
         // Game progression (only letters A-Z like DOS version)
         this.availableLetters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
         
+        // Character set modes
+        this.characterModes = {
+            'letters': 'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
+            'letters_numbers': 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789',
+            'letters_numbers_punct': 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.,?\'!/&:+-="_@¿¡'
+        };
+        
+        this.currentCharacterMode = 'letters'; // Default mode
+        
         // Callbacks for UI updates
         this.onGameUpdate = null;
         this.onGameEnd = null;
         this.onTimeWarning = null;
         
-        // High scores (matching Score.txt format)
+        // High scores (matching Score.txt format but with categories)
         this.loadHighScores();
     }
     
@@ -65,9 +74,12 @@ class GameEngine {
     nextCharacter() {
         if (!this.isGameActive) return;
         
-        // Select random letter (A-Z only, like DOS version)
-        this.currentCharacter = this.availableLetters[
-            Math.floor(Math.random() * this.availableLetters.length)
+        // Get current character set based on mode
+        const characterSet = this.characterModes[this.currentCharacterMode] || this.characterModes.letters;
+        
+        // Select random character from the current set
+        this.currentCharacter = characterSet[
+            Math.floor(Math.random() * characterSet.length)
         ];
         this.currentMorse = this.morseEngine.getCharacterMorse(this.currentCharacter);
         
@@ -231,7 +243,7 @@ class GameEngine {
             character: this.currentCharacter, // The CORRECT character
             morse: this.currentMorse,         // The morse code
             result: 'wrong',
-            wrongAnswer: wrongAnswer || 'geen antwoord', // What the user typed
+            wrongAnswer: wrongAnswer || window.i18n.t('no_answer'), // What the user typed
             correctAnswer: this.currentCharacter         // What it should have been
         };
         
@@ -365,20 +377,54 @@ class GameEngine {
     }
     
     /**
-     * Load high scores from localStorage (mimicking Score.txt)
+     * Load high scores from localStorage (with categories)
      */
     loadHighScores() {
         try {
             const stored = localStorage.getItem('morseHighScores');
-            this.highScores = stored ? JSON.parse(stored) : [];
-            
-            // Ensure we have 10 slots (like Score.txt format)
-            while (this.highScores.length < 10) {
-                this.highScores.push({ name: '', score: 0, date: '' });
+            if (stored) {
+                const data = JSON.parse(stored);
+                
+                // Handle both old format (array) and new format (object with categories)
+                if (Array.isArray(data)) {
+                    // Old format - convert to new format
+                    this.highScores = {
+                        letters: data.slice(0, 5),
+                        letters_numbers: Array(5).fill({ name: '', score: 0, date: '' }),
+                        letters_numbers_punct: Array(5).fill({ name: '', score: 0, date: '' })
+                    };
+                } else {
+                    // New format with categories
+                    this.highScores = {
+                        letters: data.letters || Array(5).fill({ name: '', score: 0, date: '' }),
+                        letters_numbers: data.letters_numbers || Array(5).fill({ name: '', score: 0, date: '' }),
+                        letters_numbers_punct: data.letters_numbers_punct || Array(5).fill({ name: '', score: 0, date: '' })
+                    };
+                }
+            } else {
+                // Initialize empty categories
+                this.highScores = {
+                    letters: Array(5).fill({ name: '', score: 0, date: '' }),
+                    letters_numbers: Array(5).fill({ name: '', score: 0, date: '' }),
+                    letters_numbers_punct: Array(5).fill({ name: '', score: 0, date: '' })
+                };
             }
+            
+            // Ensure each category has 5 slots
+            Object.keys(this.highScores).forEach(category => {
+                while (this.highScores[category].length < 5) {
+                    this.highScores[category].push({ name: '', score: 0, date: '' });
+                }
+                this.highScores[category] = this.highScores[category].slice(0, 5);
+            });
+            
         } catch (error) {
             console.error('Error loading high scores:', error);
-            this.highScores = Array(10).fill({ name: '', score: 0, date: '' });
+            this.highScores = {
+                letters: Array(5).fill({ name: '', score: 0, date: '' }),
+                letters_numbers: Array(5).fill({ name: '', score: 0, date: '' }),
+                letters_numbers_punct: Array(5).fill({ name: '', score: 0, date: '' })
+            };
         }
     }
     
@@ -394,18 +440,18 @@ class GameEngine {
     }
     
     /**
-     * Check if score qualifies for high scores
+     * Check if score qualifies for high scores in current category
      * @param {number} score - Score to check
      * @returns {boolean} True if qualifies
      */
     checkHighScore(score) {
-        // Find lowest score in high scores
-        const lowestScore = Math.min(...this.highScores.map(s => s.score));
+        const categoryScores = this.highScores[this.currentCharacterMode];
+        const lowestScore = Math.min(...categoryScores.map(s => s.score));
         return score > lowestScore;
     }
     
     /**
-     * Add new high score
+     * Add new high score to current category
      * @param {string} name - Player name
      * @param {number} score - Score achieved
      */
@@ -416,39 +462,75 @@ class GameEngine {
             date: new Date().toISOString().split('T')[0] // YYYY-MM-DD format
         };
         
-        this.highScores.push(newScore);
-        this.highScores.sort((a, b) => b.score - a.score);
-        this.highScores = this.highScores.slice(0, 10); // Keep top 10
+        // Add to current category
+        this.highScores[this.currentCharacterMode].push(newScore);
+        this.highScores[this.currentCharacterMode].sort((a, b) => b.score - a.score);
+        this.highScores[this.currentCharacterMode] = this.highScores[this.currentCharacterMode].slice(0, 5); // Keep top 5
         
         this.saveHighScores();
     }
     
     /**
-     * Get high scores list
-     * @returns {Array} High scores array
+     * Get high scores list by category
+     * @param {string} category - Category name (optional, returns all if not specified)
+     * @returns {Object|Array} High scores by category or all categories
      */
-    getHighScores() {
-        return [...this.highScores];
+    getHighScores(category) {
+        if (category && this.highScores[category]) {
+            return [...this.highScores[category]];
+        }
+        return JSON.parse(JSON.stringify(this.highScores)); // Deep copy
     }
     
     /**
      * Clear all high scores
      */
     clearHighScores() {
-        this.highScores = Array(10).fill({ name: '', score: 0, date: '' });
+        this.highScores = {
+            letters: Array(5).fill({ name: '', score: 0, date: '' }),
+            letters_numbers: Array(5).fill({ name: '', score: 0, date: '' }),
+            letters_numbers_punct: Array(5).fill({ name: '', score: 0, date: '' })
+        };
         this.saveHighScores();
     }
     
     /**
-     * Export high scores in DOS Score.txt format
+     * Export high scores in DOS Score.txt format with categories
      * @returns {string} Formatted high scores
      */
     exportHighScores() {
-        return this.highScores
-            .map(score => `"${score.name}","${score.date}",${score.score}`)
-            .join('\n');
+        let exportText = '';
+        
+        Object.keys(this.highScores).forEach(category => {
+            exportText += `\n=== ${category.toUpperCase()} ===\n`;
+            exportText += this.highScores[category]
+                .map(score => `"${score.name}","${score.date}",${score.score}`)
+                .join('\n');
+            exportText += '\n';
+        });
+        
+        return exportText;
     }
     
+    /**
+     * Set the character mode for the game
+     * @param {string} mode - Character mode: 'letters', 'letters_numbers', 'letters_numbers_punct'
+     */
+    setCharacterMode(mode) {
+        if (this.characterModes[mode]) {
+            this.currentCharacterMode = mode;
+            console.log('Character mode set to:', mode);
+        }
+    }
+
+    /**
+     * Get the current character mode
+     * @returns {string} Current character mode
+     */
+    getCharacterMode() {
+        return this.currentCharacterMode;
+    }
+
     /**
      * Get current game state
      * @returns {Object} Current game state
@@ -463,6 +545,7 @@ class GameEngine {
             currentCharacter: this.currentCharacter,
             currentMorse: this.currentMorse,
             thinkTime: this.currentThinkTime,
+            characterMode: this.currentCharacterMode,
             timeRemaining: this.gameTimer ? this.currentThinkTime - (Date.now() - this.startTime) : 0
         };
     }

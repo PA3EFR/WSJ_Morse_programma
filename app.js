@@ -1,9 +1,9 @@
-// Main Application - DOS Style Competitive Morse Code Training
+// Main Application - DOS Style Competitive Morse Code Training - Multilingual Version
 
 class MorseApp {
     constructor() {
         // Security settings
-        this.adminPassword = 'da2ed'; // Verander dit naar je eigen wachtwoord
+        this.adminPassword = 'PA3EFR'; // Verander dit naar je eigen wachtwoord
         
         // Initialize engines
         this.morseEngine = new MorseEngine();
@@ -48,6 +48,9 @@ class MorseApp {
         
         // Load high scores immediately (always visible in sidebar)
         this.updateHighScoresDisplay();
+        
+        // Initialize character mode from radio buttons
+        this.initCharacterMode();
     }
     
     /**
@@ -70,6 +73,11 @@ class MorseApp {
         
         // Stop any active audio when switching tabs
         this.audioEngine.stop();
+        
+        // Initialize reference tab if switching to it
+        if (tabName === 'reference') {
+            setTimeout(() => this.updateMorseReference(), 100);
+        }
     }
     
     /**
@@ -153,14 +161,17 @@ class MorseApp {
         
         if (gameState.character && gameState.morse) {
             document.getElementById('gameQuestion').textContent = 
-                `Wat is deze letter? (${(gameState.thinkTime / 1000).toFixed(1)}s denktijd)`;
+                window.i18n.t('what_letter_time', { time: (gameState.thinkTime / 1000).toFixed(1) });
             document.getElementById('gameMorse').textContent = gameState.morse;
         }
         
         // Handle result feedback with improved wrong answer display
         const gameResult = document.getElementById('gameResult');
         if (gameState.result === 'correct') {
-            gameResult.innerHTML = `✅ <strong>Correct!</strong> Het was inderdaad '<strong>${gameState.character}</strong>' (Score: ${gameState.score})`;
+            gameResult.innerHTML = window.i18n.t('correct_answer', { 
+                char: gameState.character, 
+                score: gameState.score 
+            });
             gameResult.className = 'game-result correct';
         } else if (gameState.result === 'wrong') {
             // DEBUG: Log specific values
@@ -171,9 +182,10 @@ class MorseApp {
             });
             
             // Enhanced wrong answer feedback
-            const feedbackHTML = `❌ <strong>Fout!</strong><br>` +
-                `Het juiste antwoord was: '<strong style="color: #059669; font-size: 1.2em;">${gameState.character}</strong>'<br>` +
-                `Jij antwoordde: '<strong style="color: #dc2626;">${gameState.wrongAnswer || 'geen antwoord'}</strong>'<br>`;
+            const feedbackHTML = window.i18n.t('wrong_answer', {
+                correct: gameState.character,
+                wrong: gameState.wrongAnswer || window.i18n.t('no_answer')
+            });
             
             console.log('Setting gameResult.innerHTML to:', feedbackHTML);
             gameResult.innerHTML = feedbackHTML;
@@ -184,8 +196,9 @@ class MorseApp {
                 morse: gameState.morse
             });
             
-            const timeoutHTML = `⏰ <strong>Tijd op!</strong><br>` +
-                `Het juiste antwoord was: '<strong style="color: #059669; font-size: 1.2em;">${gameState.character}</strong>'<br>`;
+            const timeoutHTML = window.i18n.t('timeout_answer', {
+                correct: gameState.character
+            });
             
             console.log('Setting gameResult.innerHTML to:', timeoutHTML);
             gameResult.innerHTML = timeoutHTML;
@@ -224,22 +237,22 @@ class MorseApp {
         let endMessage = ``;
 
         if (endState.qualified) {
-            endMessage += `🏆 Gefeliciteerd! `;
+            endMessage += window.i18n.t('congratulations') + ` `;
             
             // Ask for name
             const playerName = await this.promptForName();
             if (playerName) {
                 this.gameEngine.addHighScore(playerName, endState.finalScore);
-                endMessage += `\nJe bent toegevoegd aan de high scores als '${playerName}'!`;
+                endMessage += `\n` + window.i18n.t('added_to_scores', { name: playerName });
                 this.updateHighScoresDisplay();
             }
         } else {
-            endMessage += `\n\n💀 Game Over! Score: ${endState.finalScore} letters`;
-            endMessage += `\n\nProbeer het nogmaals voor een high score!`;
+            endMessage += `\n\n` + window.i18n.t('game_over', { score: endState.finalScore });
+            endMessage += `\n\n` + window.i18n.t('try_again');
         }
         
         // FIXED: Always append to existing feedback instead of replacing it
-        if (currentHTML && currentHTML.trim() && !currentHTML.includes('Klik op')) {
+        if (currentHTML && currentHTML.trim() && !currentHTML.includes(window.i18n.t('click_start'))) {
             console.log('Appending end message to existing feedback');
             gameResult.innerHTML = currentHTML + `<br><br><hr style="margin: 20px 0;"><br>` + endMessage.replace(/\n/g, '<br>');
         } else {
@@ -265,7 +278,7 @@ class MorseApp {
      */
     promptForName() {
         return new Promise((resolve) => {
-            const name = prompt('Voer je naam in voor de high score lijst:', 'SPELER');
+            const name = prompt(window.i18n.t('enter_name'), 'SPELER');
             resolve(name ? name.trim() : null);
         });
     }
@@ -313,6 +326,14 @@ class MorseApp {
             
             this.audioEngine.updateSettings({ wpm: 15, frequency: 600, volume: 0.5 });
         });
+        
+        // Character set radio buttons
+        document.querySelectorAll('input[name="characterSet"]').forEach(radio => {
+            radio.addEventListener('change', (e) => {
+                this.gameEngine.setCharacterMode(e.target.value);
+                this.updateHighScoresDisplay(); // Refresh scores for new category
+            });
+        });
     }
     
     /**
@@ -321,16 +342,16 @@ class MorseApp {
     initHighScores() {
         document.getElementById('clearScores').addEventListener('click', () => {
             // Password beveiliging voor high scores wissen
-            const password = prompt('Voer het admin wachtwoord in om high scores te wissen (hint: NATO Call):');
+            const password = prompt(window.i18n.t('admin_password_prompt'));
             if (password !== this.adminPassword) {
-                alert('Onjuist wachtwoord! High scores kunnen niet gewist worden.');
+                alert(window.i18n.t('wrong_password'));
                 return;
             }
             
-            if (confirm('Weet je zeker dat je alle high scores wilt wissen?')) {
+            if (confirm(window.i18n.t('confirm_clear'))) {
                 this.gameEngine.clearHighScores();
                 this.updateHighScoresDisplay();
-                alert('High scores zijn gewist.');
+                alert(window.i18n.t('scores_cleared'));
             }
         });
         
@@ -343,28 +364,54 @@ class MorseApp {
     }
     
     /**
-     * Update high scores display
+     * Update high scores display - FIXED to show all categories
      */
     updateHighScoresDisplay() {
-        const scoresList = document.getElementById('scoresList');
-        const scores = this.gameEngine.getHighScores().slice(0, 10); // Alleen top 10
+        // Update all three categories
+        this.updateCategoryScores('letters', 'scoresLetters');
+        this.updateCategoryScores('letters_numbers', 'scoresLettersNumbers');
+        this.updateCategoryScores('letters_numbers_punct', 'scoresLettersNumbersPunct');
+    }
+    
+    /**
+     * Update scores for a specific category
+     * @param {string} category - Category name
+     * @param {string} elementId - DOM element ID
+     */
+    updateCategoryScores(category, elementId) {
+        const scoresContainer = document.getElementById(elementId);
+        if (!scoresContainer) {
+            console.error(`Score container not found: ${elementId}`);
+            return;
+        }
         
-        scoresList.innerHTML = '';
+        const scores = this.gameEngine.getHighScores(category);
+        
+        scoresContainer.innerHTML = '';
         
         scores.forEach((score, index) => {
-            if (score.score > 0) {
+            if (score.score > 0 || score.name) { // Show non-empty scores
                 const scoreItem = document.createElement('div');
                 scoreItem.className = 'score-item';
-                scoreItem.innerHTML = `
-                    <span>#${index + 1} ${score.name || 'Anoniem'}</span>
-                    <span>${score.score} letters</span>
-                `;
-                scoresList.appendChild(scoreItem);
+                scoreItem.innerHTML = `#${index + 1} ${score.name || 'Anoniem'}: ${score.score} letters`;
+                scoresContainer.appendChild(scoreItem);
             }
         });
         
-        if (scoresList.children.length === 0) {
-            scoresList.innerHTML = '<div class="score-item">Nog geen high scores...</div>';
+        if (scoresContainer.children.length === 0) {
+            scoresContainer.innerHTML = `<div class="score-item empty">${window.i18n.t('no_scores_yet')}</div>`;
+        }
+    }
+    
+    /**
+     * Initialize character mode selection
+     */
+    initCharacterMode() {
+        // Set default mode
+        const defaultRadio = document.querySelector('input[name="characterSet"][value="letters"]');
+        if (defaultRadio) {
+            defaultRadio.checked = true;
+            this.gameEngine.setCharacterMode('letters');
         }
     }
     
@@ -433,10 +480,35 @@ class MorseApp {
     }
     
     /**
-     * Update morse reference (placeholder - not used in DOS version)
+     * Update morse reference - Add click listeners for audio playback
      */
     updateMorseReference() {
-        // Placeholder for future use
+        // Add click listeners to all morse character items
+        document.querySelectorAll('.morse-char-item').forEach(charItem => {
+            charItem.addEventListener('click', (e) => {
+                // Get the character from morse-char-display
+                const charDisplay = charItem.querySelector('.morse-char-display');
+                if (charDisplay) {
+                    const character = charDisplay.textContent.trim();
+                    console.log(`Playing morse for character: ${character}`);
+                    
+                    // Stop any current audio
+                    this.audioEngine.stop();
+                    
+                    // Play the morse code for this character
+                    this.audioEngine.playCharacter(character);
+                    
+                    // Add visual feedback
+                    charItem.classList.add('playing');
+                    setTimeout(() => {
+                        charItem.classList.remove('playing');
+                    }, 1000);
+                }
+            });
+            
+            // Add cursor pointer to indicate clickability
+            charItem.style.cursor = 'pointer';
+        });
     }
     
     /**
