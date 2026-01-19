@@ -14,7 +14,7 @@
     "win": {
       "target": "nsis",
       "icon": "morse.ico",
-      "artifactName": "WSJ_Morse_Programma_Setup.exe",
+      "artifactName": "WSJ_Morse_Programma_Setup.exe"
     },
     "nsis": {
       "oneClick": false,
