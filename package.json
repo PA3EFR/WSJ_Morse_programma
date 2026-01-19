@@ -11,11 +11,11 @@
   "build": {
     "appId": "nl.pa3efr.wsj-morse",
     "productName": "WSJ Morse Programma",
-    "publish": "never",
     "win": {
       "target": "nsis",
       "icon": "morse.ico",
-      "artifactName": "WSJ_Morse_Programma_Setup.exe"
+      "artifactName": "WSJ_Morse_Programma_Setup.exe",
+      "publish": "never"
     },
     "nsis": {
       "oneClick": false,
