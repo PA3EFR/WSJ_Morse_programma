@@ -1,0 +1,41 @@
+{
+  "name": "wsj-morse-programma",
+  "version": "1.0.0",
+  "description": "Jamboree On The Air Morse Challenge - DOS Style Training",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder",
+    "build:win": "electron-builder --win --x64"
+  },
+  "build": {
+    "appId": "nl.pa3efr.wsj-morse",
+    "productName": "WSJ Morse Programma",
+    "win": {
+      "target": "nsis",
+      "icon": "morse.ico",
+      "artifactName": "WSJ_Morse_Programma_Setup.exe"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true
+    },
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "**/*",
+      "!dist/",
+      "!node_modules/"
+    ]
+  },
+  "keywords": ["morse", "education", "amateur-radio"],
+  "author": "PA3EFR",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^28.0.0",
+    "electron-builder": "^24.9.1"
+  }
+}
