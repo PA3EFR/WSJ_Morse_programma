@@ -14,10 +14,10 @@ class MorseEngine {
             '0': '-----',  '1': '.----',  '2': '..---',  '3': '...--',  '4': '....-',
             '5': '.....',  '6': '-....',  '7': '--...',  '8': '---..',  '9': '----.',
             // Punctuation
-            '.': '.-.-.-', ',': '--..--', '?': '..--..', '\'': '.----.', '!': '-.-.--',
-            '/': '-..-.',  '(': '-.--.',  ')': '-.--.-', '&': '.-...',  ':': '---...',
-            ';': '-.-.-.', '=': '-...-',  '+': '.-.-.',  '-': '-....-',
-            '"': '.-..-.'
+            '.': '.-.-.-', ',': '--..--', '?': '..--..', '\'': '.----.',
+            '/': '-..-.',  ':': '---...', ';': '-.-.-.', '=': '-...-',
+            '+': '.-.-.',  '-': '-....-', '@': '.--.-.',  '_': '..--.-',
+            '¿': '..--.-', '¡': '--..-'}
         };
         
         // Reverse lookup for decoding
@@ -30,9 +30,9 @@ class MorseEngine {
         this.trainingSets = {
             letters: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split(''),
             numbers: '0123456789'.split(''),
-            punctuation: '.,?\'!/&:+-="'.split(''),
+            punctuation: '.,?\'/:;=+-_@¿¡'.split(''),
             letters_numbers: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'.split(''),
-            letters_numbers_punct: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.,;()?\'!/&:+-="'.split(''),
+            letters_numbers_punct: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.,?\'/:;=+-_@¿¡'.split(''),
             common: 'ETAOINSHRDLU'.split(''), // Most common letters first (for easier start)
             difficult: 'QXZJKVWY'.split(''), // More complex morse patterns
             beginner: 'EISHVUF'.split(''), // Simple patterns to start with

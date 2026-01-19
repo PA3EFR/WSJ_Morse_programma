@@ -31,7 +31,7 @@ class GameEngine {
         this.characterModes = {
             'letters': 'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
             'letters_numbers': 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789',
-            'letters_numbers_punct': 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.,?\'!/&:+-="_@¿¡'
+            'letters_numbers_punct': 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.,?\'/:;=+-_@¿¡'
         };
         
         this.currentCharacterMode = 'letters'; // Default mode

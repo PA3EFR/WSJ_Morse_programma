@@ -111,7 +111,7 @@ class MorseApp {
             if (currentMode === 'letters_numbers') {
                 allowedChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
             } else if (currentMode === 'letters_numbers_punct') {
-                allowedChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.,?\'!/&:+-="_@¿¡';
+                allowedChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.,?\'/:;=+-_@¿¡';
             }
             
             if (value && allowedChars.includes(value) && value.length === 1) {
@@ -140,7 +140,7 @@ class MorseApp {
             if (currentMode === 'letters_numbers') {
                 allowedChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
             } else if (currentMode === 'letters_numbers_punct') {
-                allowedChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.,?\'!/&:+-="_@¿¡';
+                allowedChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.,?\'/:;=+-_@¿¡';
             }
             
             // Allow single character input only
