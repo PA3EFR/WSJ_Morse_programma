@@ -53,6 +53,7 @@ class MorseApp {
         this.initCharacterMode();
         
         // Initialize language selector and hook into language changes
+        const self = this; // Save reference to MorseApp instance
         window.i18n.initLanguageSelector();
         
         // Override language setter to also update rules dropdown
@@ -60,7 +61,7 @@ class MorseApp {
         window.i18n.setLanguage = (lang) => {
             originalSetLanguage(lang);
             // Update rules dropdown after language change
-            setTimeout(() => this.updateRulesDropdown(), 100);
+            setTimeout(() => self.updateRulesDropdown(), 100);
         };
     }
     
@@ -111,7 +112,7 @@ class MorseApp {
             if (currentMode === 'letters_numbers') {
                 allowedChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
             } else if (currentMode === 'letters_numbers_punct') {
-                allowedChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.,?\'/:;=+-_@¿¡';
+                allowedChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.,?/:;=+-';
             }
             
             if (value && allowedChars.includes(value) && value.length === 1) {
@@ -140,7 +141,7 @@ class MorseApp {
             if (currentMode === 'letters_numbers') {
                 allowedChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
             } else if (currentMode === 'letters_numbers_punct') {
-                allowedChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.,?\'/:;=+-_@¿¡';
+                allowedChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.,?/:;=+-';
             }
             
             // Allow single character input only
