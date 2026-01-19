@@ -15,7 +15,6 @@
       "target": "nsis",
       "icon": "morse.ico",
       "artifactName": "WSJ_Morse_Programma_Setup.exe",
-      "publish": "never"
     },
     "nsis": {
       "oneClick": false,
