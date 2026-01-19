@@ -32,7 +32,7 @@ class MorseEngine {
             numbers: '0123456789'.split(''),
             punctuation: '.,?\'!/&:+-="'.split(''),
             letters_numbers: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'.split(''),
-            letters_numbers_punct: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.,?\'!/&:+-="'.split(''),
+            letters_numbers_punct: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.,;()?\'!/&:+-="'.split(''),
             common: 'ETAOINSHRDLU'.split(''), // Most common letters first (for easier start)
             difficult: 'QXZJKVWY'.split(''), // More complex morse patterns
             beginner: 'EISHVUF'.split(''), // Simple patterns to start with
