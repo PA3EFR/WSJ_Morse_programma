@@ -51,6 +51,17 @@ class MorseApp {
         
         // Initialize character mode from radio buttons
         this.initCharacterMode();
+        
+        // Initialize language selector and hook into language changes
+        window.i18n.initLanguageSelector();
+        
+        // Override language setter to also update rules dropdown
+        const originalSetLanguage = window.i18n.setLanguage.bind(window.i18n);
+        window.i18n.setLanguage = (lang) => {
+            originalSetLanguage(lang);
+            // Update rules dropdown after language change
+            setTimeout(() => this.updateRulesDropdown(), 100);
+        };
     }
     
     /**
@@ -91,18 +102,27 @@ class MorseApp {
             this.startCompetitiveGame();
         });
         
-        // Auto-submit functionality - submit when letter is typed
+        // Auto-submit functionality - submit when valid character is typed
         gameAnswer.addEventListener('input', (e) => {
             const value = e.target.value.trim().toUpperCase();
-            if (value && /^[A-Z]$/.test(value)) {
-                // Valid single letter typed - auto submit
+            // Get allowed characters based on current mode
+            const currentMode = this.gameEngine.getCharacterMode();
+            let allowedChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            if (currentMode === 'letters_numbers') {
+                allowedChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+            } else if (currentMode === 'letters_numbers_punct') {
+                allowedChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.,?\'!/&:+-="_@¿¡';
+            }
+            
+            if (value && allowedChars.includes(value) && value.length === 1) {
+                // Valid single character typed - auto submit
                 setTimeout(() => {
                     this.submitGameAnswer();
                 }, 100); // Small delay for better UX
             }
         });
         
-        // Prevent multiple character input
+        // Prevent multiple character input - FIXED to support numbers and punctuation
         gameAnswer.addEventListener('keydown', (e) => {
             // Allow backspace, delete, tab, escape, enter
             if ([8, 9, 27, 13, 46].indexOf(e.keyCode) !== -1 ||
@@ -114,9 +134,21 @@ class MorseApp {
                 return;
             }
             
-            // Ensure that it is a letter and stop the keypress
-            if (e.target.value.length >= 1 && (e.keyCode < 65 || e.keyCode > 90)) {
-                e.preventDefault();
+            // Get allowed characters based on current mode
+            const currentMode = this.gameEngine.getCharacterMode();
+            let allowedChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            if (currentMode === 'letters_numbers') {
+                allowedChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+            } else if (currentMode === 'letters_numbers_punct') {
+                allowedChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.,?\'!/&:+-="_@¿¡';
+            }
+            
+            // Allow single character input only
+            if (e.target.value.length >= 1) {
+                const key = e.key.toUpperCase();
+                if (!allowedChars.includes(key)) {
+                    e.preventDefault();
+                }
             }
         });
         
@@ -332,6 +364,8 @@ class MorseApp {
             radio.addEventListener('change', (e) => {
                 this.gameEngine.setCharacterMode(e.target.value);
                 this.updateHighScoresDisplay(); // Refresh scores for new category
+                this.updateRulesDropdown(); // Update rules dropdown with current character set
+                this.saveSettings(); // Save character set preference
             });
         });
     }
@@ -407,11 +441,43 @@ class MorseApp {
      * Initialize character mode selection
      */
     initCharacterMode() {
-        // Set default mode
-        const defaultRadio = document.querySelector('input[name="characterSet"][value="letters"]');
-        if (defaultRadio) {
-            defaultRadio.checked = true;
-            this.gameEngine.setCharacterMode('letters');
+        // Load saved character mode from localStorage
+        const savedMode = localStorage.getItem('morseCharacterMode');
+        const mode = savedMode || 'letters';
+        
+        const radio = document.querySelector(`input[name="characterSet"][value="${mode}"]`);
+        if (radio) {
+            radio.checked = true;
+        } else {
+            // Fallback to letters if saved mode doesn't exist
+            const defaultRadio = document.querySelector('input[name="characterSet"][value="letters"]');
+            if (defaultRadio) {
+                defaultRadio.checked = true;
+            }
+        }
+        this.gameEngine.setCharacterMode(mode);
+    }
+    
+    /**
+     * Update the rules dropdown to show current character set
+     */
+    updateRulesDropdown() {
+        const currentMode = this.gameEngine.getCharacterMode();
+        
+        // Get translated character set description based on mode and current language
+        let characterSetText;
+        if (currentMode === 'letters_numbers') {
+            characterSetText = window.i18n.t('mode_letters_numbers');
+        } else if (currentMode === 'letters_numbers_punct') {
+            characterSetText = window.i18n.t('mode_letters_numbers_punct');
+        } else {
+            characterSetText = window.i18n.t('mode_letters_only');
+        }
+        
+        // Update the first rule item if it exists
+        const firstRule = document.querySelector('#rulesContent ul li:first-child');
+        if (firstRule) {
+            firstRule.innerHTML = `🎯 ${characterSetText}`;
         }
     }
     
@@ -474,8 +540,34 @@ class MorseApp {
             document.getElementById('freqDisplay').textContent = (freq || 600) + ' Hz';
             document.getElementById('volumeDisplay').textContent = (vol || 50) + '%';
             
+            // Update rules dropdown to show current character set
+            this.updateRulesDropdown();
+            
         } catch (error) {
             console.error('Error loading settings:', error);
+        }
+    }
+    
+    /**
+     * Save settings to localStorage
+     */
+    saveSettings() {
+        try {
+            const wpmSpeed = document.getElementById('wpmSpeed');
+            const frequency = document.getElementById('frequency');
+            const volume = document.getElementById('volume');
+            const characterSet = document.querySelector('input[name="characterSet"]:checked');
+            const visualFeedback = document.getElementById('visualFeedback');
+            
+            localStorage.setItem('morseWPM', wpmSpeed.value);
+            localStorage.setItem('morseFreq', frequency.value);
+            localStorage.setItem('morseVolume', volume.value);
+            if (characterSet) {
+                localStorage.setItem('morseCharacterMode', characterSet.value);
+            }
+            localStorage.setItem('morseVisualFeedback', visualFeedback.checked);
+        } catch (error) {
+            console.error('Error saving settings:', error);
         }
     }
     
