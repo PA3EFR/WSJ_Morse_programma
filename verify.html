@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Morse Code Verificatie Tool</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        h1 { color: #333; }
+        h2 { color: #666; border-bottom: 2px solid #eee; padding-bottom: 10px; }
+        .status { padding: 10px; border-radius: 5px; margin: 10px 0; }
+        .ok { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+        code {
+            background: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: monospace;
+        }
+        .character-display {
+            font-family: monospace;
+            font-size: 18px;
+            letter-spacing: 3px;
+            background: #fff3cd;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 5px;
+        }
+        button:hover { background: #0056b3; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>🔍 Morse Code Karakterset Verificatie</h1>
+        <p>Deze tool controleert of je de juiste versie van de bestanden gebruikt.</p>
+    </div>
+
+    <div class="card">
+        <h2>1. Karakterset in Game Engine</h2>
+        <div id="gameEngineChars" class="character-display">Laden...</div>
+        <div id="gameEngineStatus" class="status">Laden...</div>
+    </div>
+
+    <div class="card">
+        <h2>2. Karakterset in Morse Engine</h2>
+        <div id="morseEngineChars" class="character-display">Laden...</div>
+        <div id="morseEngineStatus" class="status">Laden...</div>
+    </div>
+
+    <div class="card">
+        <h2>3. Karakterset voor Input Validatie</h2>
+        <div id="inputChars" class="character-display">Laden...</div>
+        <div id="inputStatus" class="status">Laden...</div>
+    </div>
+
+    <div class="card">
+        <h2>4. Actie's</h2>
+        <button onclick="runTests()">Tests Opnieuw Draaien</button>
+        <button onclick="clearCache()">LocalStorage Wissen</button>
+        <button onclick="location.reload()">Pagina Herladen</button>
+    </div>
+
+    <div class="card">
+        <h2>📋 Verificatie Resultaat</h2>
+        <div id="finalResult" class="status">Laden...</div>
+    </div>
+
+    <script>
+        // Load MorseEngine first
+        function loadAndTest() {
+            // Test 1: Check game-engine.js characterModes
+            let gameEngineChars = '';
+            if (typeof gameEngine !== 'undefined' && gameEngine.characterModes) {
+                gameEngineChars = gameEngine.characterModes['letters_numbers_punct'];
+                document.getElementById('gameEngineChars').textContent = gameEngineChars;
+                if (gameEngineChars.includes('¿') || gameEngineChars.includes('¡') ||
+                    gameEngineChars.includes("'") || gameEngineChars.includes('@') ||
+                    gameEngineChars.includes('_')) {
+                    document.getElementById('gameEngineStatus').className = 'status error';
+                    document.getElementById('gameEngineStatus').innerHTML = '❌ FOUT: Ongewenste karakters gevonden! (¿ ¡ \' @ _)';
+                } else {
+                    document.getElementById('gameEngineStatus').className = 'status ok';
+                    document.getElementById('gameEngineStatus').innerHTML = '✅ CORRECT: Geen verboden karakters';
+                }
+            } else {
+                document.getElementById('gameEngineChars').textContent = 'Kon gameEngine niet laden';
+                document.getElementById('gameEngineStatus').className = 'status error';
+                document.getElementById('gameEngineStatus').innerHTML = '❌ gameEngine niet gevonden!';
+            }
+
+            // Test 2: Check morse-engine.js trainingSets
+            let morseEngineChars = '';
+            if (typeof morseEngine !== 'undefined' && morseEngine.trainingSets) {
+                morseEngineChars = morseEngine.trainingSets['letters_numbers_punct'].join('');
+                document.getElementById('morseEngineChars').textContent = morseEngineChars;
+                if (morseEngineChars.includes('¿') || morseEngineChars.includes('¡') ||
+                    morseEngineChars.includes("'") || morseEngineChars.includes('@') ||
+                    morseEngineChars.includes('_')) {
+                    document.getElementById('morseEngineStatus').className = 'status error';
+                    document.getElementById('morseEngineStatus').innerHTML = '❌ FOUT: Ongewenste karakters gevonden! (¿ ¡ \' @ _)';
+                } else {
+                    document.getElementById('morseEngineStatus').className = 'status ok';
+                    document.getElementById('morseEngineStatus').innerHTML = '✅ CORRECT: Geen verboden karakters';
+                }
+            } else {
+                document.getElementById('morseEngineChars').textContent = 'Kon morseEngine niet laden';
+                document.getElementById('morseEngineStatus').className = 'status error';
+                document.getElementById('morseEngineStatus').innerHTML = '❌ morseEngine niet gevonden!';
+            }
+
+            // Test 3: Check what characters are actually generated
+            let generatedChars = [];
+            if (typeof morseEngine !== 'undefined' && typeof gameEngine !== 'undefined') {
+                gameEngine.currentCharacterMode = 'letters_numbers_punct';
+                for (let i = 0; i < 100; i++) {
+                    const charSet = gameEngine.characterModes['letters_numbers_punct'];
+                    const randomChar = charSet[Math.floor(Math.random() * charSet.length)];
+                    if (!generatedChars.includes(randomChar)) {
+                        generatedChars.push(randomChar);
+                    }
+                }
+                const sortedChars = generatedChars.sort().join('');
+                document.getElementById('inputChars').textContent = sortedChars;
+                if (sortedChars.includes('¿') || sortedChars.includes('¡') ||
+                    sortedChars.includes("'") || sortedChars.includes('@') ||
+                    sortedChars.includes('_')) {
+                    document.getElementById('inputStatus').className = 'status error';
+                    document.getElementById('inputStatus').innerHTML = '❌ FOUT: Ongewenste karakters worden gegenereerd!';
+                } else {
+                    document.getElementById('inputStatus').className = 'status ok';
+                    document.getElementById('inputStatus').innerHTML = '✅ CORRECT: Alleen geldige karakters worden gegenereerd';
+                }
+            }
+
+            // Final result
+            const gameOk = !gameEngineChars.includes('¿') && !gameEngineChars.includes('¡');
+            const morseOk = !morseEngineChars.includes('¿') && !morseEngineChars.includes('¡');
+
+            const finalResult = document.getElementById('finalResult');
+            if (gameOk && morseOk) {
+                finalResult.className = 'status ok';
+                finalResult.innerHTML = `
+                    <h3>✅ ALLES IS CORRECT!</h3>
+                    <p>Je gebruikt de juiste versie van de bestanden.</p>
+                    <p><strong>Karakterset:</strong> ${gameEngineChars}</p>
+                    <p><strong>Aantal karakters:</strong> ${gameEngineChars.length}</p>
+                    <p><strong>Verwacht:</strong> 45 karakters (26 letters + 10 cijfers + 9 leestekens)</p>
+                    <hr>
+                    <p><strong>Als je nog steeds '¿' ziet:</strong></p>
+                    <ul>
+                        <li>Druk op <code>Ctrl + Shift + R</code> (harde refresh)</li>
+                        <li>OF wis je browser cache</li>
+                        <li>OF gebruik een incognito venster</li>
+                    </ul>
+                `;
+            } else {
+                finalResult.className = 'status error';
+                finalResult.innerHTML = `
+                    <h3>❌ PROBLEEM GEVONDEN!</h3>
+                    <p>Je gebruikt nog steeds oude bestanden met verboden karakters.</p>
+                    <p><strong>Download een nieuwe versie en vervang alle bestanden!</strong></p>
+                    <p>Verwijder ook oude cache bestanden van je browser.</p>
+                `;
+            }
+        }
+
+        function clearCache() {
+            localStorage.clear();
+            alert('LocalStorage is gewist. Herlaad de pagina.');
+            location.reload();
+        }
+
+        function runTests() {
+            loadAndTest();
+        }
+
+        // Run tests after page loads
+        window.addEventListener('load', loadAndTest);
+    </script>
+</body>
+</html>
