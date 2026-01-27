@@ -12,7 +12,7 @@ This is a stand-alone version of the Jamboree On The Air Morse Challenge applica
 - **Offline**: No internet connection required
 - **Multilingual**: Supports Dutch, German, English, French, and Spanish
 - **Morse Code Training**: Learn and train Morse code with audio and visual feedback
-- **High Scores**: Local high scores per difficulty level. reset with admin password (see apps.js line )
+- **High Scores**: Local high scores per difficulty level. reset with case-sensitive admin password (see apps.js line 6. )
 
 ## Requirements
 - Modern web browser (Chrome, Firefox, Safari, Edge)
